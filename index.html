@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Amazon の売上と広告実績を CSV から確認するダッシュボード" />
+    <title>Amazon Performance Dashboard</title>
+    <link rel="stylesheet" href="src/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="#"><span class="brand-mark">A</span><span>Amazon Performance</span></a>
+      <span class="privacy">● ブラウザ内で安全に処理</span>
+    </header>
+    <main>
+      <section class="hero" aria-labelledby="page-title">
+        <p class="eyebrow">PERFORMANCE OVERVIEW</p>
+        <h1 id="page-title">売上と広告効果を、<br /><span>ひとつの画面に。</span></h1>
+        <p class="lead">Seller Central からダウンロードした2つのCSVを読み込むだけ。重要な指標をすぐに確認できます。</p>
+      </section>
+
+      <section class="upload-grid" aria-label="CSVアップロード">
+        <article class="upload-card" id="sales-card">
+          <div class="upload-icon sales-icon">↗</div>
+          <div><span class="step">STEP 1</span><h2>売上レポート</h2><p>Business Report CSV</p></div>
+          <label class="file-button">CSVを選択<input id="sales-file" type="file" accept=".csv,.txt,text/csv" /></label>
+          <p class="file-status" id="sales-status" aria-live="polite">ファイルが選択されていません</p>
+        </article>
+        <article class="upload-card" id="ads-card">
+          <div class="upload-icon ads-icon">◎</div>
+          <div><span class="step">STEP 2</span><h2>広告レポート</h2><p>Sponsored Products CSV</p></div>
+          <label class="file-button">CSVを選択<input id="ads-file" type="file" accept=".csv,.txt,text/csv" /></label>
+          <p class="file-status" id="ads-status" aria-live="polite">ファイルが選択されていません</p>
+        </article>
+      </section>
+
+      <section class="results" aria-labelledby="result-title">
+        <div class="section-heading"><div><p class="eyebrow">KEY METRICS</p><h2 id="result-title">パフォーマンス</h2></div><span id="data-state">CSVを読み込んでください</span></div>
+        <div class="metric-grid">
+          <article class="metric primary"><span>売上</span><strong id="total-sales">未読込</strong><small>Business Report</small></article>
+          <article class="metric"><span>広告費</span><strong id="ad-spend">未読込</strong><small>Sponsored Products</small></article>
+          <article class="metric"><span>広告売上</span><strong id="ad-sales">未読込</strong><small>広告経由の売上</small></article>
+          <article class="metric ratio"><span>ROAS <button type="button" title="広告売上 ÷ 広告費" aria-label="ROASの計算式: 広告売上 ÷ 広告費">?</button></span><strong id="roas">未読込</strong><small>広告費用対効果</small></article>
+          <article class="metric ratio"><span>ACOS <button type="button" title="広告費 ÷ 広告売上 × 100" aria-label="ACOSの計算式: 広告費 ÷ 広告売上 × 100">?</button></span><strong id="acos">未読込</strong><small>広告売上に占める費用</small></article>
+          <article class="metric ratio"><span>TACoS <button type="button" title="広告費 ÷ 全体売上 × 100" aria-label="TACoSの計算式: 広告費 ÷ 全体売上 × 100">?</button></span><strong id="tacos">未読込</strong><small>全体売上に占める費用</small></article>
+        </div>
+        <div id="error-box" class="error-box" role="alert" hidden></div>
+      </section>
+    </main>
+    <footer>データは外部へ送信されません <span>•</span> Amazon Performance Dashboard</footer>
+    <script type="module" src="src/app.js"></script>
+  </body>
+</html>
