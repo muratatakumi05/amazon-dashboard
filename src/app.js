@@ -1,7 +1,7 @@
 import { aggregateAds, aggregateSales, decodeFile } from "./csv.js";
 import { calculateMetrics, dashboardDisplay } from "./metrics.js";
 
-const state = { totalSales: 0, adSpend: 0, adSales: 0, salesLoaded: false, adsLoaded: false };
+const state = { totalSales: 0, adSpend: 0, adSales: 0, salesPeriod: null, adsPeriod: null, salesLoaded: false, adsLoaded: false };
 const elements = Object.fromEntries(["total-sales", "ad-spend", "ad-sales", "roas", "acos", "tacos", "data-state", "error-box"].map(id => [id, document.getElementById(id)]));
 
 function render() {
@@ -15,6 +15,15 @@ function render() {
   elements.tacos.textContent = display.tacos;
   const count = Number(state.salesLoaded) + Number(state.adsLoaded);
   elements["data-state"].textContent = count === 2 ? "✓ 2つのCSVから集計完了" : count ? `あと${2 - count}つのCSVをアップロードしてください` : "2つのCSVをアップロードしてください";
+  if (count === 2 && state.salesPeriod && state.adsPeriod) {
+    const matches = state.salesPeriod.start === state.adsPeriod.start && state.salesPeriod.end === state.adsPeriod.end;
+    elements["data-state"].textContent = matches
+      ? `✓ 集計完了（${state.salesPeriod.start}〜${state.salesPeriod.end}）`
+      : `⚠ 対象期間が不一致: 売上 ${state.salesPeriod.start}〜${state.salesPeriod.end} / 広告 ${state.adsPeriod.start}〜${state.adsPeriod.end}`;
+    elements["data-state"].classList.toggle("period-warning", !matches);
+  } else {
+    elements["data-state"].classList.remove("period-warning");
+  }
 }
 
 function showError(message) {
@@ -31,22 +40,24 @@ async function load(kind, file) {
     const text = await decodeFile(file);
     if (kind === "sales") {
       const result = aggregateSales(text);
-      state.totalSales = result.total; state.salesLoaded = true;
-      status.textContent = `✓ ${file.name}（${result.rows.toLocaleString()}行）`;
+      state.totalSales = result.total; state.salesPeriod = result.period; state.salesLoaded = true;
+      status.textContent = `✓ ${file.name}（${result.rows.toLocaleString()}行・「${result.header}」を集計）`;
     } else {
       const result = aggregateAds(text);
-      state.adSpend = result.spend; state.adSales = result.sales; state.adsLoaded = true;
-      status.textContent = `✓ ${file.name}（${result.rows.toLocaleString()}行）`;
+      state.adSpend = result.spend; state.adSales = result.sales; state.adsPeriod = result.period; state.adsLoaded = true;
+      status.textContent = `✓ ${file.name}（${result.rows.toLocaleString()}行・「${result.spendHeader}」「${result.salesHeader}」を集計）`;
     }
     card.classList.add("loaded");
     render();
   } catch (error) {
     if (kind === "sales") {
       state.totalSales = 0;
+      state.salesPeriod = null;
       state.salesLoaded = false;
     } else {
       state.adSpend = 0;
       state.adSales = 0;
+      state.adsPeriod = null;
       state.adsLoaded = false;
     }
     status.textContent = `読み込み失敗: ${file.name}`;
